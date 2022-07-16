@@ -1,4 +1,4 @@
-# nic_calculator
+# Find date of Birth and Gender Using National Identity Card
 
 A new Flutter project.
 
