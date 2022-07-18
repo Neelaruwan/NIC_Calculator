@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:nic_calculator/http_service.dart';
 
 void main() {
   runApp(const MyApp());
@@ -38,8 +39,8 @@ class _MyHomePageState extends State<MyHomePage> {
     var year="";
     var day="";
 
-     year = "19"+nic.substr(0,2);
-     dayText = (nic.substr(2,3));
+    year = "19"+nic.substr(0,2);
+    dayText = (nic.substr(2,3));
 
     if(dayText>500){
       dayText = dayText-500;
@@ -117,7 +118,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-             Padding(
+            Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
               child: TextFormField(
                 decoration: const InputDecoration(
@@ -161,19 +162,8 @@ class SecondRoute extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Second Route'),
-      ),
-      backgroundColor: Colors.greenAccent,
-      body: Center(
-        child: ElevatedButton(
-          onPressed: (){
-            Navigator.pop(context);
-          },
-          child: const Text('Go Back'),
-        ),
-      ),
-    );
+   return MaterialApp(
+     home: SecondScreen(),
+   );
   }
 }
