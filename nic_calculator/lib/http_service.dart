@@ -4,40 +4,18 @@ import 'package:http/http.dart' as http;
 import 'package:nic_calculator/main.dart';
 import 'dart:async';
 
-Future<Album> fetchAlbum() async {
-  final response = await http
-      .get(Uri.parse('https://jsonplaceholder.typicode.com/albums/1'));
+import 'employeemodel.dart';
 
-  if (response.statusCode == 200) {
-    // If the server did return a 200 OK response,
-    // then parse the JSON.
-    return Album.fromJson(jsonDecode(response.body));
-  } else {
-    // If the server did not return a 200 OK response,
-    // then throw an exception.
-    throw Exception('Failed to load album');
-  }
+Future<List<Employees>> fetchResults() async {
+  Uri url = Uri.parse("https://jsonplaceholder.typicode.com/albums/1");
+  var response = await http.get(url);
+  var resultsJson = json.decode(response.body).cast<Map<String, dynamic>>();
+  List<Employees> emplist = await resultsJson
+      .map<Employees>((json) => Employees.fromJson(json))
+      .toList();
+  return emplist;
 }
 
-class Album {
-  final int userId;
-  final int id;
-  final String title;
-
-  const Album({
-    required this.userId,
-    required this.id,
-    required this.title,
-  });
-
-  factory Album.fromJson(Map<String, dynamic> json) {
-    return Album(
-      userId: json['userId'],
-      id: json['id'],
-      title: json['title'],
-    );
-  }
-}
 
 class SecondScreen extends StatefulWidget {
   const SecondScreen({Key? key}) : super(key: key);
@@ -47,13 +25,7 @@ class SecondScreen extends StatefulWidget {
 }
 
 class _SecondScreenState extends State<SecondScreen> {
-  late Future<Album> futureAlbum;
-
-  @override
-  void initState() {
-    super.initState();
-    futureAlbum = fetchAlbum();
-  }
+  late List<Employees> emps;
 
   @override
   Widget build(BuildContext context) {
@@ -67,50 +39,49 @@ class _SecondScreenState extends State<SecondScreen> {
           title: const Text('Http Get Request'),
         ),
         backgroundColor: Colors.greenAccent,
-        body: Center(
-          child: FutureBuilder<Album>(
-            future: futureAlbum,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return DataTable(
-                    columns: const <DataColumn>[
-                      DataColumn(
-                          label: Text(
-                            'ID',
-                              style: TextStyle(fontStyle: FontStyle.italic),
-                          ),
-                      ),
-                      DataColumn(
-                        label: Text(
-                          'User Id',
-                          style: TextStyle(fontStyle: FontStyle.italic),
-                        ),
-                      ),
-                      DataColumn(
-                        label: Text(
-                          'Title',
-                          style: TextStyle(fontStyle: FontStyle.italic),
-                        ),
-                      ),
-                    ],
-                    rows:  <DataRow>[
-                      DataRow(
-                          cells: <DataCell>[
-                            DataCell(Text(snapshot.data!.id.toString())),
-                            DataCell(Text(snapshot.data!.userId.toString())),
-                            DataCell(Text(snapshot.data!.title)),
-                          ]),
-                    ]);
-                //return Text('id :'+snapshot.data!.id.toString()+'\n''userId :'+snapshot.data!.userId.toString()+'\n''Title :'+snapshot.data!.title);
-              } else if (snapshot.hasError) {
-                return Text('${snapshot.error}');
-              }
-              // By default, show a loading spinner.
-              return const CircularProgressIndicator();
-            },
-          ),
-        ),
-      ),
+        body: SingleChildScrollView(
+    child: Column(
+    children: [
+    FutureBuilder<List<Employees>>(
+    initialData: const <Employees>[],
+    future: fetchResults(),
+    builder: (context, snapshot) {
+    if (snapshot.hasError ||
+    snapshot.data == null ||
+    snapshot.connectionState == ConnectionState.waiting) {
+    return const CircularProgressIndicator();
+    }
+
+    return DataTable(
+    columns: const [
+    DataColumn(label: Text('ID')),
+    DataColumn(label: Text('UserId')),
+    DataColumn(label: Text('Title')),
+    ],
+    rows: List.generate(
+    snapshot.data!.length,
+    (index) {
+        var emp = snapshot.data![index];
+        return DataRow(cells: [
+            DataCell(
+            Text(emp.id.toString()),
+            ),
+            DataCell(
+            Text(emp.userId),
+            ),
+            DataCell(
+            Text(emp.title),
+            ),
+        ]);
+        },
+    ).toList(),
+    );
+    },
+    ),
+    ],
+    ),
+    ),
+    ),
     );
   }
 }
