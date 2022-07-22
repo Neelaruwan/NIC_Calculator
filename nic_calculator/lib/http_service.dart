@@ -72,7 +72,36 @@ class _SecondScreenState extends State<SecondScreen> {
             future: futureAlbum,
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-                return Text(snapshot.data!.title);
+                return DataTable(
+                    columns: const <DataColumn>[
+                      DataColumn(
+                          label: Text(
+                            'ID',
+                              style: TextStyle(fontStyle: FontStyle.italic),
+                          ),
+                      ),
+                      DataColumn(
+                        label: Text(
+                          'User Id',
+                          style: TextStyle(fontStyle: FontStyle.italic),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Text(
+                          'Title',
+                          style: TextStyle(fontStyle: FontStyle.italic),
+                        ),
+                      ),
+                    ],
+                    rows:  <DataRow>[
+                      DataRow(
+                          cells: <DataCell>[
+                            DataCell(Text(snapshot.data!.id.toString())),
+                            DataCell(Text(snapshot.data!.userId.toString())),
+                            DataCell(Text(snapshot.data!.title)),
+                          ]),
+                    ]);
+                //return Text('id :'+snapshot.data!.id.toString()+'\n''userId :'+snapshot.data!.userId.toString()+'\n''Title :'+snapshot.data!.title);
               } else if (snapshot.hasError) {
                 return Text('${snapshot.error}');
               }
@@ -85,5 +114,3 @@ class _SecondScreenState extends State<SecondScreen> {
     );
   }
 }
-
-
