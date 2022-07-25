@@ -4,18 +4,53 @@ import 'package:http/http.dart' as http;
 import 'package:nic_calculator/main.dart';
 import 'dart:async';
 
-import 'employeemodel.dart';
-
 Future<List<Employees>> fetchResults() async {
-  Uri url = Uri.parse("https://jsonplaceholder.typicode.com/albums/1");
+  Uri url = Uri.parse("https://jsonplaceholder.typicode.com/albums");
   var response = await http.get(url);
-  var resultsJson = json.decode(response.body).cast<Map<String, dynamic>>();
-  List<Employees> emplist = await resultsJson
+  var resultsJson = jsonDecode(response.body) as List;
+  print(resultsJson.toString());
+  List<Employees> empList = resultsJson.map((employeeJson) => Employees.fromJson(employeeJson)).toList();
+ /* List<Employees> emplist = await resultsJson
       .map<Employees>((json) => Employees.fromJson(json))
-      .toList();
-  return emplist;
+      .toList();*/
+  return empList;
 }
+/*
+List<Employees> employeesFromJson(String str) =>
+    List<Employees>.from(json.decode(str).map((x) => Employees.fromJson(x)));
 
+String employeesToJson(List<Employees> data) =>
+    json.encode(List<dynamic>.from(data.map((x) => x.toJson())));*/
+
+class Employees {
+  Employees(
+    this.id,
+    this.userId,
+    this.title,
+  );
+
+  int id;
+  int userId;
+  String title;
+
+  factory Employees.fromJson(dynamic json){
+    return Employees(
+        json['id'] as int,
+        json['userId'] as int,
+        json['title'] as String
+    );
+  }
+
+  /*Map<String, dynamic> toJson() => {
+    "id": id,
+    "userId": userId,
+    "title": title,
+  };*/
+  @override
+  String toString() {
+    return '{ ${this.id}, ${this.userId}, ${this.title} }';
+  }
+}
 
 class SecondScreen extends StatefulWidget {
   const SecondScreen({Key? key}) : super(key: key);
@@ -25,7 +60,13 @@ class SecondScreen extends StatefulWidget {
 }
 
 class _SecondScreenState extends State<SecondScreen> {
-  late List<Employees> emps;
+  late Future<List<Employees>> futureData;
+
+  @override
+  void initState() {
+    super.initState();
+    futureData = fetchResults();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,12 +92,20 @@ class _SecondScreenState extends State<SecondScreen> {
     snapshot.connectionState == ConnectionState.waiting) {
     return const CircularProgressIndicator();
     }
-
     return DataTable(
     columns: const [
-    DataColumn(label: Text('ID')),
-    DataColumn(label: Text('UserId')),
-    DataColumn(label: Text('Title')),
+    DataColumn(label: Text('ID',
+      style:TextStyle(fontWeight: FontWeight.bold,fontSize: 16,
+          color: Colors.deepOrange),
+    )),
+    DataColumn(label: Text('UserId',
+      style:TextStyle(fontWeight: FontWeight.bold,fontSize: 16,
+          color: Colors.deepOrange),
+    )),
+    DataColumn(label: Text('Title',
+      style:TextStyle(fontWeight: FontWeight.bold,fontSize: 16,
+          color: Colors.deepOrange),
+    )),
     ],
     rows: List.generate(
     snapshot.data!.length,
@@ -67,7 +116,7 @@ class _SecondScreenState extends State<SecondScreen> {
             Text(emp.id.toString()),
             ),
             DataCell(
-            Text(emp.userId),
+            Text(emp.userId.toString()),
             ),
             DataCell(
             Text(emp.title),
